@@ -172,6 +172,13 @@ def delete_trade(id):
 
 	return redirect(url_for("journal"))
 
+@app.route("/fix-db")
+def fix_db():
+    from sqlalchemy import text
+    db.session.execute(text("ALTER TABLE users ADD COLUMN email VARCHAR(120);"))
+    db.session.commit()
+    return "DB fixed"
+
 if __name__ == "__main__":
     app.run(debug=True)
 
