@@ -1,14 +1,18 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, session, url_for
 from models import db, User, Trade
 from dotenv import load_dotenv
 from flask import render_template
 from datetime import datetime
+from flask_bcrypt import Bcrypt
 import os
 
 
 load_dotenv()
 
+
 app = Flask(__name__)
+
+bcrypt = Bcrypt(app)
 
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL") or 'sqlite:///site.db'
@@ -33,15 +37,41 @@ def dashboard():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        # TODO: ตรวจสอบ credentials แล้ว login ให้ถูกต้อง
-        return redirect(url_for("journal"))
-    return render_template("login.html")
+        email = request.form.get("email")
+        password = request.form.get("password")
 
+        user = User.query.filter_by(email=email).first()
+
+        if user and bcrypt.check_password_hash(user.password, password):
+            # login success
+            session["user_id"] = user.id
+            return redirect("/dashboard")
+        else:
+            return "Invalid email or password"
+
+    return render_template("login.html")
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        # TODO: สร้าง user ใหม่แล้ว redirect ไปหน้า login/ index.html
-        return redirect(url_for("login"))
+        username = request.form.get("username")
+        email = request.form.get("email")
+        password = request.form.get("password")
+
+        # hash password
+        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+
+        # save user
+        user = User(
+            username=username,
+            email=email,
+            password=hashed_password
+        )
+
+        db.session.add(user)
+        db.session.commit()
+
+        return redirect("/login")
+
     return render_template("register.html")
 
 @app.route("/journal")
