@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Add Trade</title>
+
+<style>
+
+:root{
+    --bg:#0f1117;
+    --card:#161b22;
+    --accent:#00ff9c;
+    --text:#e6fef4;
+    --muted:#8fbfb0;
+}
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    font-family:system-ui;
+}
+
+body{
+    background:var(--bg);
+    color:var(--text);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+}
+
+.card{
+    width:900px;
+    background:var(--card);
+    padding:30px;
+    border-radius:12px;
+    border:1px solid rgba(0,255,156,.1);
+}
+
+h1{
+    margin-bottom:6px;
+}
+
+.subtitle{
+    color:var(--muted);
+    margin-bottom:25px;
+}
+
+/* FORM GRID */
+
+.form-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:16px;
+}
+
+label{
+    font-size:14px;
+    color:var(--muted);
+    display:block;
+    margin-bottom:4px;
+}
+
+input,select,textarea{
+    width:100%;
+    padding:10px;
+    background:#0c0f14;
+    border:1px solid rgba(0,255,156,.2);
+    color:white;
+    border-radius:6px;
+}
+
+input:focus,select:focus,textarea:focus{
+    border-color:var(--accent);
+    box-shadow:0 0 6px rgba(0,255,156,.5);
+    outline:none;
+}
+
+textarea{
+    grid-column:1 / -1;
+    height:90px;
+}
+
+/* RR */
+
+.rr-display{
+    margin-top:15px;
+    color:var(--accent);
+    font-weight:bold;
+}
+
+/* BUTTON */
+
+button{
+    margin-top:20px;
+    width:100%;
+    padding:12px;
+    background:var(--accent);
+    border:none;
+    border-radius:8px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+button:hover{
+    box-shadow:0 0 12px var(--accent);
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<h1>Add New Trade</h1>
+<p class="subtitle">Record your trade details to track your performance.</p>
+
+<form action="{{ url_for('add_trade') }}" method="POST" enctype="multipart/form-data">
+
+<div class="form-grid">
+
+<div>
+<label>Date</label>
+<input type="date" name="date" required>
+</div>
+
+<div>
+<label>Asset / Pair</label>
+<input type="text" name="asset" placeholder="Example: NQ, BTCUSD" required>
+</div>
+
+<div>
+<label>Direction</label>
+<select name="direction">
+<option>Long</option>
+<option>Short</option>
+</select>
+</div>
+
+<div>
+<label>Entry Price</label>
+<input id="entry" type="number" step="any" name="entry" required>
+</div>
+
+<div>
+<label>Stop Loss</label>
+<input id="sl" type="number" step="any" name="stop_loss" required>
+</div>
+
+<div>
+<label>Take Profit</label>
+<input id="tp" type="number" step="any" name="take_profit" required>
+</div>
+
+<div>
+<label>Exit Price</label>
+<input type="number" step="any" name="exit">
+</div>
+
+<div>
+<label>Position Size</label>
+<input type="number" step="any" name="size">
+</div>
+
+<div>
+<label>Strategy Tag</label>
+<input type="text" name="strategy" placeholder="FVG, Breaker">
+</div>
+
+<div>
+<label>Result</label>
+<select name="result">
+<option>Win</option>
+<option>Loss</option>
+<option>Break Even</option>
+</select>
+</div>
+
+<div>
+<label>Trade Screenshot</label>
+<input type="file" name="screenshot">
+</div>
+
+<textarea name="notes" placeholder="Trade notes..."></textarea>
+
+</div>
+
+<div class="rr-display" id="rr">
+Risk Reward: -
+</div>
+
+<button type="submit">
+Save Trade
+</button>
+
+</form>
+
+</div>
+
+<script>
+
+const entry=document.getElementById("entry")
+const sl=document.getElementById("sl")
+const tp=document.getElementById("tp")
+const rrDisplay=document.getElementById("rr")
+
+function calcRR(){
+
+let e=parseFloat(entry.value)
+let s=parseFloat(sl.value)
+let t=parseFloat(tp.value)
+
+if(e && s && t){
+
+let rr=(t-e)/(e-s)
+
+rrDisplay.innerText="Risk Reward: "+rr.toFixed(2)+" R"
+
+}
+
+}
+
+entry.oninput=calcRR
+sl.oninput=calcRR
+tp.oninput=calcRR
+
+</script>
+
+</body>
+</html>
