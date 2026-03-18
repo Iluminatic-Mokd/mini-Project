@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <title>Add Trade</title>
 
 <style>
@@ -124,7 +126,7 @@ button:hover{
 
 <div>
 <label>Date</label>
-<input type="date" name="date" required>
+<input type="text" id="datePicker" placeholder="Select date">
 </div>
 
 <div>
@@ -202,30 +204,43 @@ Save Trade
 
 <script>
 
-const entry=document.getElementById("entry")
-const sl=document.getElementById("sl")
-const tp=document.getElementById("tp")
-const rrDisplay=document.getElementById("rr")
+    flatpickr("#datePicker", {
+        dateFormat: "Y-m-d",
+        defaultDate: "today",
+        onChange: function(selectedDates, dateStr, instance) {
+            // Set the value of a hidden input to the selected date
+            let hiddenInput = document.createElement("input");
+            hiddenInput.type = "hidden";
+            hiddenInput.name = "date";
+            hiddenInput.value = dateStr;
+            instance.element.form.appendChild(hiddenInput);
+        }
+    });
 
-function calcRR(){
+    const entry=document.getElementById("entry")
+    const sl=document.getElementById("sl")
+    const tp=document.getElementById("tp")
+    const rrDisplay=document.getElementById("rr")
 
-let e=parseFloat(entry.value)
-let s=parseFloat(sl.value)
-let t=parseFloat(tp.value)
+    function calcRR(){
 
-if(e && s && t){
+    let e=parseFloat(entry.value)
+    let s=parseFloat(sl.value)
+    let t=parseFloat(tp.value)
 
-let rr=(t-e)/(e-s)
+    if(e && s && t){
 
-rrDisplay.innerText="Risk Reward: "+rr.toFixed(2)+" R"
+    let rr=(t-e)/(e-s)
 
-}
+    rrDisplay.innerText="Risk Reward: "+rr.toFixed(2)+" R"
 
-}
+    }
 
-entry.oninput=calcRR
-sl.oninput=calcRR
-tp.oninput=calcRR
+    }
+
+    entry.oninput=calcRR
+    sl.oninput=calcRR
+    tp.oninput=calcRR
 
 </script>
 

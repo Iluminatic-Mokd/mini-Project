@@ -340,7 +340,7 @@
 
 					<td>{{ trade.exit }}</td>
 
-					<td>{{ trade.rr if trade.rr else '-' }}</td>
+					<td>{{ "%.2f"|format(trade.rr) if trade.rr is not none else '-' }}</td>
 
 					<td class="{% if trade.result|lower == 'win' %}win{% else %}loss{% endif %}">
 						{{ trade.result }}

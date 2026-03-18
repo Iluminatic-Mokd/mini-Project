@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, url_for
+from flask import Flask, flash, render_template, request, redirect, session, url_for
 from models import db, User, Trade
 from dotenv import load_dotenv
 from flask import render_template
@@ -44,10 +44,10 @@ def login():
 
         if user and bcrypt.check_password_hash(user.password, password):
             # login success
-            session["user_id"] = user.id
-            return redirect("/dashboard")
+            return redirect('/journal')
         else:
-            return "Invalid email or password"
+            flash('Invalid email or password')
+            return redirect('/login')
 
     return render_template("login.html")
 @app.route("/register", methods=["GET", "POST"])
@@ -57,10 +57,21 @@ def register():
         email = request.form.get("email")
         password = request.form.get("password")
 
+        # ✅ check ซ้ำก่อน
+        existing_user = User.query.filter_by(username=username).first()
+        existing_email = User.query.filter_by(email=email).first()
+
+        if existing_user:
+            flash("Username already exists")
+            return redirect("/register")
+
+        if existing_email:
+            flash("Email already exists")
+            return redirect("/register")
+
         # hash password
         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
 
-        # save user
         user = User(
             username=username,
             email=email,
@@ -172,12 +183,12 @@ def delete_trade(id):
 
 	return redirect(url_for("journal"))
 
-@app.route("/fix-db")
-def fix_db():
-    from sqlalchemy import text
-    db.session.execute(text("ALTER TABLE users ADD COLUMN email VARCHAR(120);"))
-    db.session.commit()
-    return "DB fixed"
+# @app.route("/fix-db")
+# def fix_db():
+#     from sqlalchemy import text
+#     db.session.execute(text("ALTER TABLE users ADD COLUMN email VARCHAR(120);"))
+#     db.session.commit()
+#     return "DB fixed"
 
 if __name__ == "__main__":
     app.run(debug=True)
